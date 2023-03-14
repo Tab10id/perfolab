@@ -1,8 +1,14 @@
-# PerformanceStand
+# PerfoLab
 
-TODO: Delete this and the text below, and describe your gem
+This framework used to simplify routine operations of benchmarking processes.
+We always should run different tools and compare result of our experiments.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/perfolab`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem provide instrument that run configured profilers and benchmarks
+against your code, save results of profiler to own directory and show diff
+between current and previous run.
+
+Framework allow to append text report about performance session with diff tables
+for future analyze results of entire refactoring.
 
 ## Installation
 
@@ -18,7 +24,31 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'perfolab'
+
+loop =
+  PerfoLab::Loop.new do |config|
+    config[:ruby_prof] = {
+      track_allocations: true,
+      measure_mode: RubyProf::MEMORY
+    }
+    config[:stackprof] = {
+      mode: :object,
+      raw: true
+    }
+    config[:benchmark] = {
+      start: 1,
+      limit: 32,
+      ratio: 2
+    }
+  end
+
+loop.analyze do |i|
+  # `i` - number of [1, 2, 4, 8, 16, 32] for benchmark
+  analyzed_code_fragment(i)
+end
+```
 
 ## Development
 
