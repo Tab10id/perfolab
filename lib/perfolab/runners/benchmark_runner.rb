@@ -3,19 +3,14 @@
 module PerfoLab
   module Runners
     class BenchmarkRunner < Base
-      def run(start:, limit:, ratio:, &block)
-        range = Benchmark::Trend.range(start, limit, ratio: ratio)
+      def run(n, &block)
+        GC.start
 
-        # warmup
-        range.each(&block)
-
-        results =
-          range.map do |n|
-            GC.start
-            total = (Benchmark.measure { yield(n) }.total * 1000).to_i
-            [n.to_s, "#{total}ms"]
-          end
-        results.to_h
+        benchmark_tms = Benchmark.measure { block.call(n) }
+        %w[utime stime cutime cstime real total].map do |prop|
+          value = benchmark_tms.__send__(prop)
+          Metric.new(property: prop, value: value, value_formatted: "#{(value * 1000).to_i}ms")
+        end
       end
     end
   end

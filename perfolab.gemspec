@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "benchmark-trend", "~> 0.4.0"
   spec.add_dependency "memory_profiler", "~> 1.0"
   spec.add_dependency "ruby-prof", "~> 1.6"
   spec.add_dependency "stackprof", "~> 0.2.0"
@@ -41,6 +40,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tabulo", "~> 2.0"
   spec.add_dependency "zeitwerk", "~> 2.6"
 
-  # For more information and examples about making a new gem, check out our
-  # guide at: https://bundler.io/guides/creating_gem.html
+  spec.add_development_dependency "benchmark-trend", "~> 0.4.0"
 end

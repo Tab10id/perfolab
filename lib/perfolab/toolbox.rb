@@ -15,37 +15,43 @@ module PerfoLab
 
     class << self
       def configure
-        new.tap do |stand|
-          yield(stand.config) if block_given?
+        new.tap do |toolbox|
+          yield(toolbox) if block_given?
         end
       end
     end
 
-    attr_reader :config
+    attr_reader :tools
 
     def initialize
-      @config = default_config
+      @tools =
+        Hash.new do |_h, name|
+          raise ArgumentError, "tool with name #{name} already exist"
+        end
+    end
+
+    def add_tool(name, type:, config: {}, runner_options: {})
+      @tools[name] =
+        PROFILERS[type].new(
+          config: default_config[type].merge(config),
+          runner_options: default_runner_options.merge(runner_options)
+        )
     end
 
     def analyze(reports_dir:, &block)
-      GC.disable if config[:gc_disable]
-
       run_profilers(reports_dir: reports_dir, &block)
-    ensure
-      GC.enable
     end
 
     private
 
     def run_profilers(reports_dir:, &block)
-      PROFILERS.each_with_object({}) do |(type, klass), results|
-        results[type.to_s] = klass.new(reports_dir).run(**config[type], &block)
+      tools.each_with_object({}) do |(name, tool), results|
+        results[name.to_s] = tool.perform(reports_dir: reports_dir, &block)
       end
     end
 
     def default_config # rubocop:disable Metrics/MethodLength
       {
-        gc_disable: true,
         memory_profiler: {
           # top: 50, # maximum number of entries to display in a report (default is 50)
           # allow_files: //, # include only certain files from tracing - can be given as a String, Regexp, or array of Strings
@@ -59,9 +65,14 @@ module PerfoLab
           mode: :wall,
           raw: true
         },
-        benchmark: {
-          ratio: 8
-        }
+        benchmark: {}
+      }
+    end
+
+    def default_runner_options
+      {
+        gc_disable: true,
+        warmup: 0
       }
     end
   end
