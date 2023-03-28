@@ -28,27 +28,66 @@ If bundler is not being used to manage dependencies, install the gem by executin
 require 'perfolab'
 
 loop =
-  PerfoLab::Loop.new do |config|
-    config[:ruby_prof] = {
-      track_allocations: true,
-      measure_mode: RubyProf::MEMORY
-    }
-    config[:stackprof] = {
-      mode: :object,
-      raw: true
-    }
-    config[:benchmark] = {
-      start: 1,
-      limit: 32,
-      ratio: 2
-    }
+  PerfoLab::Loop.new do |toolbox|
+    toolbox.add_tool(
+      :cpu_wall,
+      type: :ruby_prof,
+      config: {
+        track_allocations: true,
+        measure_mode: RubyProf::MEMORY
+      }
+    )
+    toolbox.add_tool(
+      :stackprof_objects,
+      type: :stackprof,
+      config: {
+        mode: :object,
+        raw: true
+      }
+    )
+    toolbox.add_tool(
+      :memory_profiler,
+      type: :memory_profiler,
+      runner_options: {
+        gc_disable: false,
+        warmup: 0,
+        arguments: [42]
+      }
+    )
+    toolbox.add_tool(
+      :benchmark_trend,
+      type: :benchmark,
+      runner_options: {
+        gc_disable: false,
+        warmup: 1,
+        arguments: [1, 2, 4, 8, 16, 32],
+        values: [:total]
+      }
+    )
+    toolbox.add_tool(
+      :benchmark_standard,
+      type: :benchmark
+    )
   end
 
 loop.analyze do |i|
-  # `i` - number of [1, 2, 4, 8, 16, 32] for benchmark
+  # `i` - number of [1, 2, 4, 8, 16, 32] for benchmark 
+  # `i` - 42 for memory_profiler
+  # `i` - nil for another tools
   analyzed_code_fragment(i)
 end
 ```
+
+## TODOs
+
+This is an early version of framework and many features may work not as expected.
+For now I want to implement next few major things:
+* Run tools in subprocesses (tools affects each other)
+* Stabilization of gem API
+* RSpec-like DSL for easy analyze code in separate files
+* CLI tool for analyze code in files and directories
+* Non interactive mode for CI
+* Code coverage
 
 ## Development
 
