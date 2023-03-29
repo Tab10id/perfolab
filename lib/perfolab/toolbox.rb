@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "benchmark"
-require "benchmark-trend"
 
 module PerfoLab
   # Run configured tools for performance analyze
