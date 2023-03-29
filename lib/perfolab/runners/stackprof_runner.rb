@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "stackprof"
+require "json"
 
 module PerfoLab
   module Runners
@@ -12,6 +13,7 @@ module PerfoLab
 
         report_dump(result)
         report_text(reporter)
+        report_speedscope(result)
         report_flamegraph(reporter)
         []
       end
@@ -27,6 +29,13 @@ module PerfoLab
       def report_text(reporter)
         File.open("#{@reports_dir}/stackprof-cpu.txt", "w") do |file|
           reporter.print_text(false, nil, nil, nil, nil, nil, file)
+        end
+      end
+
+      def report_speedscope(result)
+        # name is important speedscope use it as definition of json schema
+        File.open("#{@reports_dir}/stackprof.speedscope_for.json", "w") do |f|
+          f.write(JSON.generate(result))
         end
       end
 
