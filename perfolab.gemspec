@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "memory_profiler", "~> 1.0"
-  spec.add_dependency "ruby-prof", "~> 1.6"
+  spec.add_dependency "ruby-prof", "~> 1.4", "< 1.4.4"
   spec.add_dependency "stackprof", "~> 0.2.0"
 
   spec.add_dependency "tabulo", "~> 2.0"
