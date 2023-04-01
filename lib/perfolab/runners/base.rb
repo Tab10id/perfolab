@@ -11,9 +11,9 @@ module PerfoLab
         @runner_options = runner_options
       end
 
-      def perform(reports_dir:, gc_disable: true, &block)
+      def perform(reports_dir:, &block)
         @reports_dir = reports_dir
-        GC.disable if gc_disable
+        GC.disable if runner_options[:gc_disable]
         runner_options[:warmup].times { warmup(&block) }
 
         argument_collection.flat_map do |n|
